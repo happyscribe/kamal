@@ -278,4 +278,13 @@ class ConfigurationTest < ActiveSupport::TestCase
     assert_nil @config.asset_path
     assert_equal "foo", Kamal::Configuration.new(@deploy.merge!(asset_path: "foo")).asset_path
   end
+  
+  test "stop_asynchronously" do
+    assert_not @config.role(:web).stop_async?
+    raw_config_with_stop_async = @deploy_with_roles.dup
+    raw_config_with_stop_async[:servers]["workers"]["stop_asynchronously"] = true
+    config_with_stop_async = Kamal::Configuration.new(raw_config_with_stop_async)
+    assert_not config_with_stop_async.role(:web).stop_async?
+    assert config_with_stop_async.role(:workers).stop_async?
+  end
 end
